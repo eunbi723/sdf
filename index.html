@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>지역지리 탐험 카드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Square+Round:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ── 색·타이포: 밝고 상쾌한 톤 + 둥근 고딕 ── */
+    :root {
+      --bg: #eef7fb;
+      --bg2: #ffffff;
+      --sky: #4db8e8;
+      --sky-light: #d4eef9;
+      --mint: #5ecfb0;
+      --mint-light: #e0f7f0;
+      --tx: #1a3a4a;
+      --tx2: #4a6672;
+      --tx3: #7a96a3;
+      --border: rgba(77, 184, 232, 0.25);
+      --radius: 12px;
+      --touch: 44px;
+      --panel-w: min(420px, 92vw);
+      --ease: cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nanum Square Round', sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--tx);
+      background:
+        radial-gradient(ellipse 70% 45% at 15% -5%, rgba(77, 184, 232, 0.18), transparent 55%),
+        radial-gradient(ellipse 50% 35% at 95% 5%, rgba(94, 207, 176, 0.14), transparent 50%),
+        var(--bg);
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 1.25rem;
+      padding-top: max(1.25rem, env(safe-area-inset-top));
+      padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+    }
+
+    /* ── 제목·안내 ── */
+    .page-header {
+      max-width: 720px;
+      margin: 0 auto 1.75rem;
+    }
+
+    .page-title {
+      font-size: clamp(1.4rem, 4.5vw, 1.85rem);
+      font-weight: 800;
+      color: var(--tx);
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .page-title span {
+      color: var(--sky);
+    }
+
+    .page-guide {
+      font-size: 0.95rem;
+      color: var(--tx2);
+      font-weight: 400;
+    }
+
+    /* ── 공유 안내 ── */
+    .share-notice {
+      max-width: 720px;
+      margin: 0 auto 1.25rem;
+      padding: 0.875rem 1rem;
+      background: var(--mint-light);
+      border: 1.5px solid rgba(94, 207, 176, 0.35);
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      color: var(--tx2);
+      line-height: 1.6;
+    }
+
+    .share-notice__title {
+      font-weight: 700;
+      color: #2a9d7a;
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
+    }
+
+    .share-notice ul {
+      margin: 0.35rem 0 0 1.1rem;
+      padding: 0;
+    }
+
+    .share-notice li + li {
+      margin-top: 0.15rem;
+    }
+
+    /* ── 스크린 리더 전용 ── */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ── 카드 그리드: 모바일 1열 → 480px↑ 2×2 ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.875rem;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 480px) {
+      .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+    }
+
+    /* ── 카드: 플랫 + 얇은 테두리 ── */
+    .card {
+      background: var(--bg2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.125rem;
+      cursor: pointer;
+      transition: border-color 0.25s var(--ease), background 0.25s var(--ease), transform 0.25s var(--ease);
+      min-height: 118px;
+      animation: card-in 0.45s var(--ease) both;
+    }
+
+    .card:nth-child(1) { animation-delay: 0.04s; }
+    .card:nth-child(2) { animation-delay: 0.08s; }
+    .card:nth-child(3) { animation-delay: 0.12s; }
+    .card:nth-child(4) { animation-delay: 0.16s; }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:hover {
+      border-color: var(--sky);
+      background: var(--sky-light);
+      transform: translateY(-2px);
+    }
+
+    .card:active {
+      transform: scale(0.98);
+    }
+
+    .card:focus-visible {
+      outline: 2px solid var(--sky);
+      outline-offset: 2px;
+    }
+
+    .card__emoji {
+      font-size: 2rem;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .card__title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      color: var(--tx);
+    }
+
+    .card__summary {
+      font-size: 0.85rem;
+      color: var(--tx2);
+      line-height: 1.55;
+      font-weight: 400;
+    }
+
+    /* ── 모달 오버레이 ── */
+    .modal {
+      visibility: hidden;
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(26, 58, 74, 0.35);
+      opacity: 0;
+      transition: opacity 0.3s var(--ease), visibility 0.3s;
+    }
+
+    .modal.is-open {
+      visibility: visible;
+      pointer-events: auto;
+      opacity: 1;
+    }
+
+    /* ── 사이드 패널: 오른쪽에서 슬라이드 ── */
+    .modal__panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: var(--panel-w);
+      height: 100%;
+      height: 100dvh;
+      background: var(--bg2);
+      border-left: 1.5px solid var(--border);
+      padding: 1.5rem;
+      padding-top: max(1.5rem, env(safe-area-inset-top));
+      padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+      padding-right: max(1.5rem, env(safe-area-inset-right));
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform 0.35s var(--ease);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal.is-open .modal__panel {
+      transform: translateX(0);
+    }
+
+    /* 모바일: 아래에서 올라오는 바텀 시트 */
+    @media (max-width: 479px) {
+      .modal__panel {
+        top: auto;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        width: 100%;
+        max-height: 92dvh;
+        height: auto;
+        border-left: none;
+        border-top: 1.5px solid var(--border);
+        border-radius: 20px 20px 0 0;
+        padding-top: 0.75rem;
+        transform: translateY(100%);
+      }
+
+      .modal.is-open .modal__panel {
+        transform: translateY(0);
+      }
+
+      .modal__handle {
+        display: block;
+      }
+
+      .modal__footer {
+        position: sticky;
+        bottom: 0;
+        background: var(--bg2);
+        margin-top: 1rem;
+        padding-bottom: max(0.25rem, env(safe-area-inset-bottom));
+      }
+
+      .modal__btn {
+        font-size: 1rem;
+      }
+    }
+
+    /* PC·태블릿: 오른쪽 패널 */
+    @media (min-width: 480px) {
+      .modal__handle {
+        display: none;
+      }
+    }
+
+    .modal__handle {
+      width: 36px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 1rem;
+    }
+
+    .modal__mobile-hint {
+      display: none;
+      font-size: 0.8rem;
+      color: var(--tx3);
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 479px) {
+      .modal__mobile-hint {
+        display: block;
+      }
+    }
+
+    .modal__header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1.5px solid var(--mint-light);
+    }
+
+    .modal__title-wrap {
+      flex: 1;
+    }
+
+    .modal__emoji {
+      font-size: 2.5rem;
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+
+    .modal__title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--tx);
+    }
+
+    .modal__close {
+      flex-shrink: 0;
+      width: var(--touch);
+      height: var(--touch);
+      border: 1.5px solid var(--border);
+      border-radius: 50%;
+      background: var(--bg2);
+      color: var(--tx2);
+      font-size: 1.25rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal__close:hover {
+      border-color: var(--sky);
+      background: var(--sky-light);
+      color: var(--tx);
+    }
+
+    .modal__body {
+      font-size: 0.95rem;
+      color: var(--tx2);
+      line-height: 1.75;
+    }
+
+    .modal__section {
+      margin-bottom: 1.125rem;
+    }
+
+    .modal__section:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal__label {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--sky);
+      background: var(--sky-light);
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      margin-bottom: 0.35rem;
+      letter-spacing: 0.02em;
+    }
+
+    .modal__label--mint {
+      color: #2a9d7a;
+      background: var(--mint-light);
+    }
+
+    .modal__text {
+      font-weight: 400;
+    }
+
+    /* ── 모달 하단 버튼 ── */
+    .modal__footer {
+      display: flex;
+      gap: 0.625rem;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1.5px solid var(--mint-light);
+    }
+
+    .modal__btn {
+      flex: 1;
+      min-height: var(--touch);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .modal__btn--close {
+      border: 1.5px solid var(--border);
+      background: var(--bg2);
+      color: var(--tx2);
+    }
+
+    .modal__btn--close:hover {
+      border-color: var(--sky);
+      background: var(--sky-light);
+      color: var(--tx);
+    }
+
+    .modal__btn--next {
+      border: none;
+      background: var(--sky);
+      color: #fff;
+    }
+
+    .modal__btn--next:hover {
+      background: #3aa8dc;
+    }
+
+    .modal__btn--next:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* 내용 전환 */
+    .modal__content.is-switching {
+      opacity: 0;
+      transform: translateX(8px);
+      transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+    }
+
+    .modal__content {
+      flex: 1;
+      transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+    }
+
+    .card.is-active {
+      border-color: var(--sky);
+      background: var(--sky-light);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 제목·안내 -->
+  <header class="page-header">
+    <h1 class="page-title"><span aria-hidden="true">🌍</span><span class="sr-only">지구본 </span> 지역지리 탐험 카드</h1>
+    <p class="page-guide">카드를 눌러 각 나라의 기후·산업·문화를 자세히 살펴보세요.</p>
+  </header>
+
+  <!-- 공유 안내 -->
+  <aside class="share-notice" aria-label="공유 안내">
+    <p class="share-notice__title"><span aria-hidden="true">📤</span><span class="sr-only">공유 </span>학생·동료와 공유하기</p>
+    <p>이 <strong>index.html</strong> 파일 하나만 보내면, 별도 설치 없이 브라우저에서 바로 열 수 있습니다.</p>
+    <ul>
+      <li>카톡·메일 등으로 파일 첨부 후 전송</li>
+      <li>받은 사람은 파일을 더블클릭하거나 브라우저로 열기</li>
+      <li>인터넷 없이도 사용 가능 (글꼴만 처음 한 번 불러옴)</li>
+    </ul>
+  </aside>
+
+  <main>
+    <!-- 카드 그리드 -->
+    <section class="card-grid" id="card-grid" aria-label="탐험 카드 목록"></section>
+  </main>
+
+  <!-- 상세 모달 -->
+  <div class="modal" id="detail-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-body">
+    <div class="modal__panel" role="document">
+      <div class="modal__handle" aria-hidden="true"></div>
+      <p class="modal__mobile-hint">바깥 영역을 누르거나 아래로 스와이프하면 닫힙니다</p>
+      <div class="modal__header">
+        <div class="modal__title-wrap">
+          <div class="modal__emoji" id="modal-emoji" aria-hidden="true"></div>
+          <span class="sr-only" id="modal-emoji-alt"></span>
+          <h2 class="modal__title" id="modal-title"></h2>
+        </div>
+        <button type="button" class="modal__close" id="modal-close" aria-label="상세 창 닫기">✕</button>
+      </div>
+      <div class="modal__content" id="modal-content">
+        <div class="modal__body" id="modal-body" aria-live="polite"></div>
+      </div>
+      <footer class="modal__footer">
+        <button type="button" class="modal__btn modal__btn--close" id="modal-close-footer">닫기</button>
+        <button type="button" class="modal__btn modal__btn--next" id="modal-next">다음 지역 →</button>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // 탐험 카드 데이터
+    const cards = [
+      {
+        id: 1,
+        name: '태국',
+        emoji: '🇹🇭',
+        emojiAlt: '태국 국기',
+        summary: '열대 몬순 기후 · 관광·농업 · 불교와 전통 시장',
+        sections: [
+          { label: '기후', text: '연중 덥고 습한 열대 몬순 기후입니다. 우기(5~10월)와 건기로 나뉩니다.' },
+          { label: '산업', text: '관광업이 크고, 쌀·고무·수산물 등 농업도 중요합니다.' },
+          { label: '문화', text: '불교 사원과 왕실 문화가 깊고, 야시장·태국 음식이 유명합니다.' }
+        ]
+      },
+      {
+        id: 2,
+        name: '프랑스',
+        emoji: '🇫🇷',
+        emojiAlt: '프랑스 국기',
+        summary: '온대 해양·대륙 기후 · 관광·농업·공업 · 예술과 미식',
+        sections: [
+          { label: '기후', text: '서부는 온대 해양 기후, 내륙은 대륙성 기후로 사계절이 뚜렷합니다.' },
+          { label: '산업', text: '와인·치즈 등 농업, 자동차·항공 등 공업, 루브르·에펠탑 관광이 발달했습니다.' },
+          { label: '문화', text: '미술·문학·패션이 세계적이며, 빵·와인·카페 문화가 일상에 가깝습니다.' }
+        ]
+      },
+      {
+        id: 3,
+        name: '이집트',
+        emoji: '🇪🇬',
+        emojiAlt: '이집트 국기',
+        summary: '건조·사막 기후 · 관광·수력·면화 · 고대 문명',
+        sections: [
+          { label: '기후', text: '사하라 사막으로 건조하고, 낮에는 덥고 밤에는 서늘한 날이 많습니다.' },
+          { label: '산업', text: '피라미드·스핑크스 관광, 나일강 수력(아스완 댐), 면화·쌀 농업이 중요합니다.' },
+          { label: '문화', text: '5,000년 고대 이집트 문명의 유적과 이슬람·아랍 문화가 이어집니다.' }
+        ]
+      },
+      {
+        id: 4,
+        name: '브라질',
+        emoji: '🇧🇷',
+        emojiAlt: '브라질 국기',
+        summary: '열대·아열대 기후 · 농업·광물·관광 · 카니발과 축구',
+        sections: [
+          { label: '기후', text: '적도에 가까워 대부분 열대·아열대 기후이며, 아마존은 고온 다습합니다.' },
+          { label: '산업', text: '커피·콩·사탕수수 등 농업, 철광석·석유 등 광물, 리우 카니발 관광이 유명합니다.' },
+          { label: '문화', text: '삼바·카니발 축제와 축구 열풍, 포르투갈어를 쓰는 다민족 사회입니다.' }
+        ]
+      }
+    ];
+
+    const grid = document.getElementById('card-grid');
+    const modal = document.getElementById('detail-modal');
+    const modalEmoji = document.getElementById('modal-emoji');
+    const modalEmojiAlt = document.getElementById('modal-emoji-alt');
+    const modalTitle = document.getElementById('modal-title');
+    const modalContent = document.getElementById('modal-content');
+    const modalBody = document.getElementById('modal-body');
+    const modalClose = document.getElementById('modal-close');
+    const modalCloseFooter = document.getElementById('modal-close-footer');
+    const modalNext = document.getElementById('modal-next');
+
+    let currentIndex = -1;
+    let lastFocusedCard = null;
+    const cardElements = [];
+
+    // 카드 렌더링
+    cards.forEach((card, index) => {
+      const el = document.createElement('article');
+      el.className = 'card';
+      el.dataset.index = index;
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'button');
+      el.setAttribute('aria-label', `${card.emojiAlt}, ${card.name}. ${card.summary}. 상세 보기`);
+      el.innerHTML = `
+        <div class="card__emoji" aria-hidden="true">${card.emoji}</div>
+        <span class="sr-only">${card.emojiAlt}</span>
+        <h2 class="card__title">${card.name}</h2>
+        <p class="card__summary">${card.summary}</p>
+      `;
+      el.addEventListener('click', () => openModal(index, el));
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openModal(index, el);
+        }
+      });
+      grid.appendChild(el);
+      cardElements.push(el);
+    });
+
+    function renderDetail(card) {
+      modalEmoji.textContent = card.emoji;
+      modalEmojiAlt.textContent = card.emojiAlt;
+      modalTitle.textContent = card.name;
+      modalBody.innerHTML = card.sections.map((s, i) => `
+        <section class="modal__section" aria-labelledby="section-label-${card.id}-${i}">
+          <span class="modal__label${i % 2 ? ' modal__label--mint' : ''}" id="section-label-${card.id}-${i}">${s.label}</span>
+          <p class="modal__text">${s.text}</p>
+        </section>
+      `).join('');
+    }
+
+    function updateNextButton() {
+      const isLast = currentIndex >= cards.length - 1;
+      if (isLast) {
+        modalNext.textContent = '탐험 끝';
+        modalNext.disabled = true;
+      } else {
+        const next = cards[currentIndex + 1];
+        modalNext.textContent = `다음 지역: ${next.name} →`;
+        modalNext.setAttribute('aria-label', `다음 지역 ${next.name} 보기`);
+        modalNext.disabled = false;
+      }
+    }
+
+    function setActiveCard(index) {
+      cardElements.forEach((el, i) => {
+        el.classList.toggle('is-active', i === index);
+      });
+    }
+
+    function openModal(index, cardEl) {
+      currentIndex = index;
+      lastFocusedCard = cardEl || cardElements[index];
+      renderDetail(cards[index]);
+      updateNextButton();
+      setActiveCard(index);
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      modalClose.focus();
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      setActiveCard(-1);
+      currentIndex = -1;
+      if (lastFocusedCard) lastFocusedCard.focus();
+    }
+
+    function goToNext() {
+      if (currentIndex >= cards.length - 1) return;
+      modalContent.classList.add('is-switching');
+      setTimeout(() => {
+        currentIndex += 1;
+        renderDetail(cards[currentIndex]);
+        updateNextButton();
+        setActiveCard(currentIndex);
+        lastFocusedCard = cardElements[currentIndex];
+        modalContent.classList.remove('is-switching');
+      }, 180);
+    }
+
+    modalClose.addEventListener('click', closeModal);
+    modalCloseFooter.addEventListener('click', closeModal);
+    modalNext.addEventListener('click', goToNext);
+
+    // 패널 안쪽 클릭은 닫히지 않음, 오버레이만 닫기
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.querySelector('.modal__panel').addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // 모바일: 아래로 스와이프해 닫기
+    let touchStartY = 0;
+    const panel = document.querySelector('.modal__panel');
+
+    panel.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    panel.addEventListener('touchend', (e) => {
+      if (window.innerWidth > 479) return;
+      const diff = e.changedTouches[0].clientY - touchStartY;
+      if (diff > 80) closeModal();
+    }, { passive: true });
+
+    document.addEventListener('keydown', (e) => {
+      if (!modal.classList.contains('is-open')) return;
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowRight' && !modalNext.disabled) goToNext();
+    });
+  </script>
+
+</body>
+</html>
